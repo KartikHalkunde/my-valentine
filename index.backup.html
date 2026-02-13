@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Will You Be My Valentine?</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-pink: #ff6b81;
+            --dark-pink: #ff4757;
+            --soft-pink: #ffeef0;
+            --text-color: #2f3542;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--white);
+            height: 100vh;
+            overflow: hidden; /* No scrolling */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            transition: background-color 1.5s ease;
+        }
+
+        /* Floating Background Hearts */
+        .bg-heart {
+            position: absolute;
+            color: var(--primary-pink);
+            opacity: 0.2;
+            font-size: 20px;
+            animation: floatUp linear infinite;
+            z-index: 0;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(110vh) scale(0.5);
+                opacity: 0;
+            }
+            20% {
+                opacity: 0.4;
+            }
+            100% {
+                transform: translateY(-10vh) scale(1.5) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Main Container */
+        .container {
+            text-align: center;
+            z-index: 10;
+            padding: 20px;
+            width: 90%;
+            max-width: 600px;
+            transition: opacity 0.5s ease;
+        }
+
+        h1 {
+            font-family: 'Pacifico', cursive;
+            font-size: 3.5rem;
+            color: var(--dark-pink);
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 0px rgba(255, 200, 200, 0.5);
+            line-height: 1.2;
+        }
+
+        .message-box {
+            min-height: 50px;
+            margin-bottom: 40px;
+            font-size: 1.3rem;
+            color: var(--text-color);
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            position: relative;
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* YES Button */
+        #yes-btn {
+            background: linear-gradient(135deg, var(--primary-pink), #e84393);
+            color: white;
+            box-shadow: 0 8px 20px rgba(232, 67, 147, 0.3);
+            z-index: 5;
+            transform-origin: center;
+        }
+
+        #yes-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(232, 67, 147, 0.5);
+        }
+
+        /* NO Button */
+        #no-btn {
+            background-color: #f1f2f6;
+            color: #747d8c;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            z-index: 4;
+            transition: all 0.2s ease; /* Faster transition for movement */
+        }
+
+        #no-btn:hover {
+            background-color: #dfe4ea;
+            color: #2f3542;
+        }
+
+        /* Audio Toggle Icon */
+        .audio-control {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 50;
+            opacity: 0.5;
+            transition: opacity 0.3s;
+            background: none;
+            border: none;
+        }
+        .audio-control:hover { opacity: 1; }
+
+        /* Celebration Screen (Hidden by default) */
+        #success-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none; /* Flex when active */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .success-msg {
+            font-family: 'Pacifico', cursive;
+            font-size: 4rem;
+            color: var(--dark-pink);
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(255, 107, 129, 0.2);
+            animation: popIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            80% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Confetti Canvas */
+        #confetti {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 90;
+            pointer-events: none;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 600px) {
+            h1 { font-size: 2.5rem; }
+            .buttons { flex-direction: column; gap: 15px; }
+            button { width: 100%; }
+            .success-msg { font-size: 2.5rem; padding: 20px; width: 90%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Dynamic Background -->
+    <div id="bg-container"></div>
+
+    <!-- Audio Toggle -->
+    <button class="audio-control" id="music-btn" title="Toggle Music">🔇</button>
+
+    <!-- Main Card -->
+    <div class="container" id="card">
+        <h1>Will you be my Valentine?</h1>
+        <div class="message-box" id="msg-box"></div>
+        <div class="buttons">
+            <button id="yes-btn">Yes!</button>
+            <button id="no-btn">No</button>
+        </div>
+    </div>
+
+    <!-- Success Layer -->
+    <canvas id="confetti"></canvas>
+    <div id="success-screen">
+        <div class="success-msg">Best decision ever ❤️</div>
+    </div>
+
+    <script>
+        // --- Configuration ---
+        const messages = [
+            "Are you sure?",
+            "Think again...",
+            "I'll wait forever 🥺",
+            "This button is getting nervous...",
+            "You know you want to press Yes 😌",
+            "Okay now you're just teasing me.",
+            "Last chance! 🌹",
+            "Don't do this to me! 💔"
+        ];
+
+        // --- State ---
+        let noCount = 0;
+        let runawayMode = false;
+        let audioContext = null;
+        let isPlaying = false;
+        let oscillators = []; // Track active sounds to stop them
+
+        // --- DOM Elements ---
+        const yesBtn = document.getElementById('yes-btn');
+        const noBtn = document.getElementById('no-btn');
+        const msgBox = document.getElementById('msg-box');
+        const card = document.getElementById('card');
+        const successScreen = document.getElementById('success-screen');
+        const musicBtn = document.getElementById('music-btn');
+
+        // --- Background Animation ---
+        function createHearts() {
+            const container = document.getElementById('bg-container');
+            const count = 15;
+            for (let i = 0; i < count; i++) {
+                const heart = document.createElement('div');
+                heart.classList.add('bg-heart');
+                heart.innerHTML = '❤';
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = Math.random() * 5 + 6 + 's';
+                heart.style.animationDelay = Math.random() * 5 + 's';
+                container.appendChild(heart);
+            }
+        }
+
+        // --- Interaction Logic ---
+        
+        // 1. Handle "No" Click
+        noBtn.addEventListener('click', () => {
+            noCount++;
+            
+            // Cycle messages
+            const txt = messages[(noCount - 1) % messages.length];
+            msgBox.innerText = txt;
+            
+            // Grow Yes button
+            // 1.2 = 20% larger each time
+            const scale = 1 + (noCount * 0.2);
+            yesBtn.style.transform = `scale(${scale})`;
+            
+            // Check for Runaway mode
+            if (noCount >= 5 && !runawayMode) {
+                runawayMode = true;
+                initRunaway();
+            }
+        });
+
+        // 2. Runaway Button Logic
+        function initRunaway() {
+            // Desktop: hover
+            noBtn.addEventListener('mouseover', moveButton);
+            // Mobile: touchstart (try to touch it, it moves)
+            noBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault(); 
+                moveButton();
+            });
+        }
+
+        function moveButton() {
+            if (!runawayMode) return;
+            
+            // Calculate boundaries (padding of 50px)
+            const x = Math.random() * (window.innerWidth - noBtn.offsetWidth - 50);
+            const y = Math.random() * (window.innerHeight - noBtn.offsetHeight - 50);
+            
+            noBtn.style.position = 'fixed';
+            noBtn.style.left = `${Math.max(20, x)}px`;
+            noBtn.style.top = `${Math.max(20, y)}px`;
+        }
+
+        // 3. Handle "Yes" Click
+        yesBtn.addEventListener('click', () => {
+            // Hide main card
+            card.style.opacity = '0';
+            setTimeout(() => card.style.display = 'none', 500);
+
+            // Show Success
+            successScreen.style.display = 'flex';
+            document.body.style.backgroundColor = '#ffeef0';
+
+            // Trigger effects
+            initConfetti();
+            playSuccessChime();
+        });
+
+
+        // --- Audio System (Web Audio API) ---
+        // We generate sounds programmatically so no external MP3s are needed.
+        
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        }
+
+        // Toggle Background Music
+        musicBtn.addEventListener('click', () => {
+            initAudio();
+            
+            if (isPlaying) {
+                stopMusic();
+                musicBtn.innerText = '🔇';
+                isPlaying = false;
+            } else {
+                playMusic();
+                musicBtn.innerText = '🎵';
+                isPlaying = true;
+            }
+        });
+
+        function playMusic() {
+            // Simple arpeggio loop
+            const notes = [261.63, 329.63, 392.00, 523.25]; // C Major
+            let index = 0;
+
+            function noteLoop() {
+                if (!isPlaying) return;
+                
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.value = notes[index];
+                
+                gain.gain.setValueAtTime(0.05, audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1.5);
+                
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                
+                osc.start();
+                osc.stop(audioContext.currentTime + 1.5);
+                oscillators.push(osc);
+                
+                index = (index + 1) % notes.length;
+                setTimeout(noteLoop, 400); // Speed of melody
+            }
+            noteLoop();
+        }
+
+        function stopMusic() {
+            oscillators.forEach(o => {
+                try { o.stop(); } catch(e){}
+            });
+            oscillators = [];
+        }
+
+        function playSuccessChime() {
+            initAudio();
+            // A triumphant chord
+            const chord = [523.25, 659.25, 783.99, 1046.50];
+            
+            chord.forEach((freq, i) => {
+                setTimeout(() => {
+                    const osc = audioContext.createOscillator();
+                    const gain = audioContext.createGain();
+                    
+                    osc.type = 'triangle';
+                    osc.frequency.value = freq;
+                    
+                    gain.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 3);
+                    
+                    osc.connect(gain);
+                    gain.connect(audioContext.destination);
+                    
+                    osc.start();
+                    osc.stop(audioContext.currentTime + 3);
+                }, i * 100);
+            });
+        }
+
+
+        // --- Canvas Confetti ---
+        function initConfetti() {
+            const canvas = document.getElementById('confetti');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const particles = [];
+            const colors = ['#ff6b81', '#ff4757', '#7bed9f', '#70a1ff', '#eccc68'];
+
+            class Particle {
+                constructor() {
+                    this.x = canvas.width / 2;
+                    this.y = canvas.height / 2;
+                    this.size = Math.random() * 15 + 5;
+                    this.speedX = Math.random() * 10 - 5;
+                    this.speedY = Math.random() * 10 - 5;
+                    this.color = colors[Math.floor(Math.random() * colors.length)];
+                }
+                update() {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+                    this.size *= 0.95; // Shrink
+                }
+                draw() {
+                    ctx.fillStyle = this.color;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            // Create explosion
+            for(let i=0; i<150; i++) particles.push(new Particle());
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for(let i=0; i<particles.length; i++){
+                    particles[i].update();
+                    particles[i].draw();
+                    if(particles[i].size < 0.5) {
+                        particles.splice(i, 1);
+                        i--;
+                    }
+                }
+                if(particles.length > 0) requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        // --- Init ---
+        window.onload = createHearts;
+        window.onresize = () => {
+            const c = document.getElementById('confetti');
+            c.width = window.innerWidth;
+            c.height = window.innerHeight;
+        };
+
+    </script>
+</body>
+</html>
+
+
